@@ -34,7 +34,8 @@ async def extract_content(file: UploadFile = File(None), url: str = Form(None)):
             suffix = os.path.splitext(filename)[1]
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
                 shutil.copyfileobj(file.file, tmp)
-                result = md.convert(tmp.name)
+
+            result = md.convert(tmp.name)
             os.unlink(tmp.name)
         else:
             headers = {"User-Agent": "EscrutaExtractorBot/1.0 (+https://escruta.com)"}
