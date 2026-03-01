@@ -1,0 +1,11 @@
+[project]
+name = "escruta-extractor"
+version = "0"
+readme = "README.md"
+authors = [{ name = "Francisco Mesa", email = "hola@francids.com" }]
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi[standard]>=0.134.0",
+  "markitdown[audio-transcription,docx,pdf,pptx,xls,xlsx,youtube-transcription]>=0.1.5",
+  "python-multipart>=0.0.22",
+]
