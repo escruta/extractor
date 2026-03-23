@@ -9,3 +9,6 @@ dependencies = [
   "markitdown[audio-transcription,docx,pdf,pptx,xls,xlsx,youtube-transcription]>=0.1.5",
   "python-multipart>=0.0.22",
 ]
+
+[dependency-groups]
+dev = ["ty>=0.0.24"]
