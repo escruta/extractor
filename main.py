@@ -6,6 +6,8 @@ import shutil
 import tempfile
 import requests
 
+from utils import is_youtube_url
+
 api_key_header = APIKeyHeader(name="ESCRUTA_INTERNAL_API_KEY", auto_error=False)
 
 
@@ -41,7 +43,34 @@ async def extract_content(file: UploadFile = File(None), url: str = Form(None)):
             headers = {"User-Agent": "EscrutaExtractorBot/1.0 (+https://escruta.com)"}
             response = requests.get(url, headers=headers, timeout=15)
             response.raise_for_status()
-            result = md.convert(response)
+
+            if is_youtube_url(url):
+                result = md.convert(response)
+            else:
+                from readability import Document
+                from bs4 import BeautifulSoup
+
+                soup = BeautifulSoup(response.text, "html.parser")
+                for math_el in soup.find_all(class_="mwe-math-element"):
+                    img = math_el.find("img")
+                    if img and img.get("alt"):
+                        latex = img.get("alt").strip()
+                        math_el.replace_with(f"$${latex}$$")
+
+                doc = Document(str(soup))
+
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=".html", mode="w", encoding="utf-8"
+                ) as tmp:
+                    tmp.write(doc.summary())
+                    tmp_name = tmp.name
+
+                try:
+                    result = md.convert(tmp_name)
+                    if not getattr(result, "title", None):
+                        result.title = doc.title()
+                finally:
+                    os.unlink(tmp_name)
 
         title = getattr(result, "title", None)
         if not title and file and file.filename:
